@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import { ClickCounter, ToggleTheme } from "./hookExercise";
 import { ThemeContext, themes } from "./themeContext";
 
-function StickyNotes() {
+export function StickyNotes() {
   const initialNote = {
     id: -1,
     title: "",
@@ -136,5 +136,3 @@ function StickyNotes() {
 
   );
 }
-
-export default StickyNotes;
