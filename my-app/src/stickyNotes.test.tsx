@@ -14,7 +14,6 @@ describe("Create StickyNote", () => {
     test("creates a new note", () => {
         render(<StickyNotes />);
 
-        // Please make sure your sticky note has a title and content input field with the following placeholders.
         const createNoteTitleInput = screen.getByPlaceholderText("Note Title");
         const createNoteContentTextarea =
             screen.getByPlaceholderText("Note Content");
@@ -32,6 +31,55 @@ describe("Create StickyNote", () => {
         expect(newNoteTitle).toBeInTheDocument();
         expect(newNoteContent).toBeInTheDocument();
     });
+
+    test("creates a new note validation error (title length > 50)", () => {
+        render(<StickyNotes />);
+        
+        const createNoteTitleInput = screen.getByPlaceholderText("Note Title");
+        const createNoteContentTextarea = screen.getByPlaceholderText("Note Content");
+        const createNoteButton = screen.getByText("Create Note");
+
+        jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+        fireEvent.change(createNoteTitleInput, { target: { value: "A".repeat(51) } });
+        fireEvent.change(createNoteContentTextarea, { target: { value: "Valid content" } });
+        fireEvent.click(createNoteButton);
+
+        expect(window.alert).toBeCalledWith("Title cannot exceed 50 characters.");
+    });
+
+    test("creates a new empty note", () => {
+        render(<StickyNotes />);
+        
+        const createNoteButton = screen.getByText("Create Note");
+
+        fireEvent.click(createNoteButton);
+
+        const xButton = screen.getAllByText('x');
+        expect(xButton.length).toEqual(7);
+    });
+
+    test("creates duplicates note", () => {
+        render(<StickyNotes />);
+
+        const createNoteTitleInput = screen.getByPlaceholderText("Note Title");
+        const createNoteContentTextarea =
+            screen.getByPlaceholderText("Note Content");
+        const createNoteButton = screen.getByText("Create Note");
+
+        fireEvent.change(createNoteTitleInput, { target: { value: "New Note" } });
+        fireEvent.change(createNoteContentTextarea, {
+            target: { value: "Note content" },
+        });
+        fireEvent.click(createNoteButton);
+        fireEvent.click(createNoteButton);
+
+        const newNoteTitle = screen.getAllByText("New Note");
+        const newNoteContent = screen.getAllByText("Note content");
+
+        expect(newNoteTitle.length).toEqual(1);
+        expect(newNoteContent.length).toEqual(1);
+    });
 });
 
 describe("test reading sticky note", () => {
@@ -47,6 +95,20 @@ describe("test reading sticky note", () => {
             expect(title).toBeInTheDocument();
             expect(content).toBeInTheDocument();
             expect(title.parentElement).toEqual(content.parentElement);
+
+        });
+    });
+
+    test("label is rendered correctly", () => {
+        render(<StickyNotes />);
+
+        dummyNotesList.forEach(note => {
+
+            const title = screen.getByText(note.title);
+            const label = title.parentElement?.querySelectorAll("p") || []
+
+            expect(title).toBeInTheDocument();
+            expect(Array.from(label).map(x => x.innerHTML.replace(" ", "").replace(" ", ""))).toContain(note.label);
 
         });
     });

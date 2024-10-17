@@ -52,6 +52,9 @@ export function StickyNotes() {
   }
 
   const createNoteHandler = (event: React.FormEvent) => {
+    if(createNote.title.length > 50){
+      alert("Title cannot exceed 50 characters.");
+    }
     event.preventDefault();
     createNote.id = curId+1;
     const newNotes = notes.map(x => x);
